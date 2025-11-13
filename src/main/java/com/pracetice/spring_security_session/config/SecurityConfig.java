@@ -1,11 +1,8 @@
 package com.pracetice.spring_security_session.config;
 
-import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,32 +13,60 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
-//@EnableRedisHttpSession
+@EnableRedisHttpSession
 public class SecurityConfig {
-
-    private final MyAuthenticationProvider myAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        AuthenticationManager authManager = new ProviderManager(myAuthenticationProvider);
         return http
-                .formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterAt(new MyAuthenticationFilter(authManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }
 
 
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails user_1 = User.withUsername("zahra")
+                .password(passwordEncoder().encode("12345")) 
+                .roles("USER")
+                .build();
+
+        UserDetails user_2 = User.withUsername("ali")
+                .password(passwordEncoder().encode("12345")) 
+                .roles("USER")
+                .build();
+
+        UserDetails user_3 = User.withUsername("ahmad")
+                .password(passwordEncoder().encode("12345")) 
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(user_1,user_2,user_3);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
+//    @Bean
+//    public AuthenticationManager authManager(HttpSecurity http, UserDetailsService uds) throws Exception {
+//        return http.getSharedObject(AuthenticationManagerBuilder.class)
+//                .userDetailsService(uds)
+//                .and()
+//                .build();
+//    }
 }
