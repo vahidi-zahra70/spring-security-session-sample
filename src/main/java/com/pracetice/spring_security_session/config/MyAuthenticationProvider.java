@@ -19,7 +19,6 @@ public class MyAuthenticationProvider implements AuthenticationProvider {
         myAuthentication.setAuthenticated(true);
         myAuthentication.setNationalCode("0013759388");
         myAuthentication.setAuthorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
-        SecurityContextHolder.getContext().setAuthentication(myAuthentication);
 
         return myAuthentication;
     }

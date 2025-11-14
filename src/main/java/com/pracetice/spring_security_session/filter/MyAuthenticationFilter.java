@@ -12,10 +12,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -23,12 +26,22 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/login");
 
+        setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+
+
         setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write("Login successful!");
-            response.addCookie(new Cookie("LoggedIn", "true"));
+
+            Cookie cookie = new Cookie("LoggedIn", "true");
+            cookie.setSecure(false);
+            cookie.setHttpOnly(false);
+            cookie.setPath("/");
+            cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
+
+            response.addCookie(cookie);
         });
 
         setAuthenticationFailureHandler((request, response, exception) -> {
@@ -38,23 +51,10 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         });
     }
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            FilterChain chain,
-                                            Authentication authResult)
-            throws IOException, ServletException {
-
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-        super.successfulAuthentication(request, response, chain, authResult);
-    }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
-
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>> here in filter");
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        System.out.println(">>>>>>>>>>>>>>>>> in my filter");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String securityAnswer = request.getParameter("security_answer");

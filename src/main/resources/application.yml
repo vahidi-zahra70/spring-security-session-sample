@@ -1,5 +1,8 @@
 server:
-#  servlet:
+  servlet:
+    session:
+      timeout: 2m
+  #  servlet:
 #    context-path: /security-session
   port: 8080
 spring:
