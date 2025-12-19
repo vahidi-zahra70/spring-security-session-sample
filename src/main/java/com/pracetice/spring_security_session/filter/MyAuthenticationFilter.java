@@ -1,24 +1,17 @@
 package com.pracetice.spring_security_session.filter;
 
-import com.pracetice.spring_security_session.dto.MyAuthentication;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
+import com.pracetice.spring_security_session.dto.OtpAuthentication;
+import com.pracetice.spring_security_session.dto.UserNamePasswordAuthentication;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
+import org.springframework.util.StringUtils;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -45,9 +38,8 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         });
 
         setAuthenticationFailureHandler((request, response, exception) -> {
-            System.out.println(">>> Authentication failed: " + exception.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Login failed!");
+            response.getWriter().write(exception.getMessage());
         });
     }
 
@@ -59,13 +51,14 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         String password = request.getParameter("password");
         String securityAnswer = request.getParameter("security_answer");
 
+        Authentication authentication;
+        if (!StringUtils.hasText(securityAnswer)) {
+            authentication= new UserNamePasswordAuthentication(username, password);
+        } else {
+            authentication= new OtpAuthentication(username, securityAnswer);
+        }
 
-        MyAuthentication myAuthentication = MyAuthentication.builder()
-                .username(username)
-                .password(password)
-                .securityAnswer(securityAnswer).build();
-
-        return this.getAuthenticationManager().authenticate(myAuthentication);
+        return this.getAuthenticationManager().authenticate(authentication);
     }
 
 
