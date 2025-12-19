@@ -1,6 +1,8 @@
 package com.pracetice.spring_security_session.config;
 
 import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
+import com.pracetice.spring_security_session.provider.OtpAuthenticationProvider;
+import com.pracetice.spring_security_session.provider.UsernamePasswordAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
-//@EnableRedisHttpSession
 public class SecurityConfig {
 
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
