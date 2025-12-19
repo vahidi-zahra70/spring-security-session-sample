@@ -1,4 +1,4 @@
-package com.pracetice.spring_security_session.config;
+package com.pracetice.spring_security_session.provider;
 
 import com.pracetice.spring_security_session.dto.OtpAuthentication;
 import com.pracetice.spring_security_session.dto.UserNamePasswordAuthentication;
