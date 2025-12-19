@@ -1,4 +1,4 @@
-Spring Security Session Examples (Redis, Hazelcast, Default)
+**Spring-boot Security Session Examples (Redis, Hazelcast, Default)**
 
 This project is a learning-oriented Spring Boot application that demonstrates:
 
@@ -18,7 +18,7 @@ Branches Overview
 
 This repository contains three independent branches, each focusing on a different setup:
 
-1️⃣ session-form-login
+1️⃣ **session-form-login**
 
 Goal:
 Understand Spring Security’s default behavior.
@@ -39,7 +39,7 @@ See how Spring Security works out of the box
 
 Compare custom authentication vs default login
 
-2️⃣ session-redis-repository
+2️⃣ **session-redis-repository**
 
 Goal:
 Learn how to use Spring Session with Redis and implement a 2-step OTP login.
@@ -54,21 +54,11 @@ Step 1: Username/password → OTP sent
 
 Step 2: OTP verification → session created
 
-Two AuthenticationProviders:
+Two AuthenticationProviders: UsernamePasswordAuthenticationProvider & OtpAuthenticationProvider
 
-UsernamePasswordAuthenticationProvider
+Session repository: RedisSessionRepository
 
-OtpAuthenticationProvider
-
-Sessions stored in Redis
-
-Sliding session timeout (10 minutes of inactivity)
-
-Session repository:
-
-RedisSessionRepository
-
-3️⃣ session-hazelcast-repository
+3️⃣ **session-hazelcast-repository**
 
 Goal:
 Use the same authentication logic but store sessions in Hazelcast instead of Redis.
@@ -81,4 +71,3 @@ Uses Spring Session Hazelcast
 
 Sessions stored in a Hazelcast distributed map
 
-Can be inspected via Hazelcast Management Center
