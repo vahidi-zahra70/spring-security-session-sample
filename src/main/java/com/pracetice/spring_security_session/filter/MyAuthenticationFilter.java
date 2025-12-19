@@ -39,7 +39,7 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
             cookie.setSecure(false);
             cookie.setHttpOnly(false);
             cookie.setPath("/");
-            cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
+//            cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
 
             response.addCookie(cookie);
         });
