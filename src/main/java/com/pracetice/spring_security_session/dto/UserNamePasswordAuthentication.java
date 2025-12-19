@@ -22,37 +22,3 @@ public class UserNamePasswordAuthentication extends UsernamePasswordAuthenticati
         super(principal, credentials, authorities);
     }
 }
-//    private String username;
-//    private String password;
-//    private String securityAnswer;
-//    private String nationalCode;
-//    private boolean authenticated;
-//    private Collection<? extends GrantedAuthority> authorities;
-//
-//
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return this.authorities;
-//    }
-//
-//    @Override
-//    public Object getCredentials() {
-//        return null;
-//    }
-//
-//    @Override
-//    public Object getDetails() {
-//        return null;
-//    }
-//
-//    @Override
-//    public String getPrincipal() {
-//        return username;
-//    }
-//
-//
-//    @Override
-//    public String getName() {
-//        return null;
-//    }
-
