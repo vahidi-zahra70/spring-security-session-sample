@@ -27,19 +27,6 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         return userNamePasswordAuthentication;
     }
 
-//    @Override
-//    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-//        UserNamePasswordAuthentication userNamePasswordAuthentication=null;
-//        if(StringUtils.hasText(authentication.getName())) {
-//            userNamePasswordAuthentication=new UserNamePasswordAuthentication(authentication.getName(),authentication.getCredentials(), List.of(new SimpleGrantedAuthority("Role_user")));
-//        }
-//        else{
-//            throw new BadCredentialsException("username is empty");
-//        }
-//
-//        return userNamePasswordAuthentication;
-//    }
-
     @Override
     public boolean supports(Class<?> authenticationType) {
         return authenticationType.equals(UserNamePasswordAuthentication.class);
