@@ -25,16 +25,22 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write("Login successful!");
+            if(authentication.isAuthenticated()) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getWriter().write("Login successful!");
 
-            Cookie cookie = new Cookie("LoggedIn", "true");
-            cookie.setSecure(false);
-            cookie.setHttpOnly(false);
-            cookie.setPath("/");
+                Cookie cookie = new Cookie("LoggedIn", "true");
+                cookie.setSecure(false);
+                cookie.setHttpOnly(false);
+                cookie.setPath("/");
 //            cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
 
-            response.addCookie(cookie);
+                response.addCookie(cookie);
+            }
+            else{
+                response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+                response.getWriter().write("Otp is sent!");
+            }
         });
 
         setAuthenticationFailureHandler((request, response, exception) -> {

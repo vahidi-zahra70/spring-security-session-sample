@@ -1,7 +1,7 @@
 server:
   servlet:
     session:
-      timeout: 2m
+      timeout: 10m
   #  servlet:
 #    context-path: /security-session
   port: 8080

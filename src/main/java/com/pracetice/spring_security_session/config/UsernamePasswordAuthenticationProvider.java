@@ -14,23 +14,11 @@ import java.util.List;
 @Component
 public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
 
-//    @Override
-//    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-//        UserNamePasswordAuthentication userNamePasswordAuthentication;
-//        if(StringUtils.hasText(authentication.getName())) {
-//            throw new BadCredentialsException("otp is sent");
-//        }
-//        else{
-//            throw new BadCredentialsException("username is empty");
-//        }
-//
-//    }
-
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        UserNamePasswordAuthentication userNamePasswordAuthentication=null;
+        UserNamePasswordAuthentication userNamePasswordAuthentication;
         if(StringUtils.hasText(authentication.getName())) {
-            userNamePasswordAuthentication=new UserNamePasswordAuthentication(authentication.getName(),authentication.getCredentials(), List.of(new SimpleGrantedAuthority("Role_user")));
+            userNamePasswordAuthentication=new UserNamePasswordAuthentication(authentication.getName(),authentication.getCredentials());
         }
         else{
             throw new BadCredentialsException("username is empty");
@@ -38,6 +26,19 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         return userNamePasswordAuthentication;
     }
+
+//    @Override
+//    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+//        UserNamePasswordAuthentication userNamePasswordAuthentication=null;
+//        if(StringUtils.hasText(authentication.getName())) {
+//            userNamePasswordAuthentication=new UserNamePasswordAuthentication(authentication.getName(),authentication.getCredentials(), List.of(new SimpleGrantedAuthority("Role_user")));
+//        }
+//        else{
+//            throw new BadCredentialsException("username is empty");
+//        }
+//
+//        return userNamePasswordAuthentication;
+//    }
 
     @Override
     public boolean supports(Class<?> authenticationType) {
