@@ -13,6 +13,9 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public MyAuthenticationFilter(AuthenticationManager authenticationManager) {
@@ -21,11 +24,10 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
         setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
 
-
         setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
-            if(authentication.isAuthenticated()) {
+            if (authentication.isAuthenticated()) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
 
@@ -33,11 +35,10 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
                 cookie.setSecure(false);
                 cookie.setHttpOnly(false);
                 cookie.setPath("/");
-//            cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
+                cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
 
                 response.addCookie(cookie);
-            }
-            else{
+            } else {
                 response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
                 response.getWriter().write("Otp is sent!");
             }
@@ -59,9 +60,9 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
         Authentication authentication;
         if (!StringUtils.hasText(securityAnswer)) {
-            authentication= new UserNamePasswordAuthentication(username, password);
+            authentication = new UserNamePasswordAuthentication(username, password);
         } else {
-            authentication= new OtpAuthentication(username, securityAnswer);
+            authentication = new OtpAuthentication(username, securityAnswer);
         }
 
         return this.getAuthenticationManager().authenticate(authentication);

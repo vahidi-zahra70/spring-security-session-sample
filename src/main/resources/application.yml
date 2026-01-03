@@ -2,6 +2,8 @@ server:
   servlet:
     session:
       timeout: 10m
+#      cookie:
+#        name: PracticeSession
   #  servlet:
 #    context-path: /security-session
   port: 8080
