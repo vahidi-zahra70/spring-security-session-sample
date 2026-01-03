@@ -1,6 +1,7 @@
 package com.pracetice.spring_security_session.config;
 
 import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
+import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
 import com.pracetice.spring_security_session.provider.OtpAuthenticationProvider;
 import com.pracetice.spring_security_session.provider.UsernamePasswordAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,4 @@ public class SecurityConfig {
                 .build();
 
     }
-
-
 }
