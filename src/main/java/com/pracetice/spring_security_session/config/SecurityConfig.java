@@ -1,7 +1,8 @@
 package com.pracetice.spring_security_session.config;
 
 import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
-import com.pracetice.spring_security_session.filter.MyAuthenticationFilter;
+import com.pracetice.spring_security_session.handler.CustomAccessDeniedHandler;
+import com.pracetice.spring_security_session.handler.CustomAuthenticationEntryPoint;
 import com.pracetice.spring_security_session.provider.OtpAuthenticationProvider;
 import com.pracetice.spring_security_session.provider.UsernamePasswordAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class SecurityConfig {
 
     private final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
     private final OtpAuthenticationProvider otpAuthenticationProvider;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,6 +35,10 @@ public class SecurityConfig {
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
                 .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer
+                                .authenticationEntryPoint(authenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler))
                 .addFilterBefore(new MyAuthenticationFilter(authManager), UsernamePasswordAuthenticationFilter.class)
                 .build();
 

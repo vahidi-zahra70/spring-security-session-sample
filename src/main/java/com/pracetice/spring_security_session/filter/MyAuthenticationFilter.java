@@ -31,7 +31,7 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
 
-                Cookie cookie = new Cookie("LoggedIn", "true");
+                Cookie cookie = new Cookie("XSRF-TOKEN",  ((OtpAuthentication) authentication).getCsrfToken());
                 cookie.setSecure(false);
                 cookie.setHttpOnly(false);
                 cookie.setPath("/");
