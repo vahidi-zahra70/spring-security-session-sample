@@ -1,10 +1,11 @@
 server:
   servlet:
     session:
-      timeout: 10m
-#      cookie:
-#        name: PracticeSession
-  #  servlet:
+      timeout: 10s
+      cookie:
+        max-age: 10s
+        name: session-test
+#    servlet:
 #    context-path: /security-session
   port: 8080
 spring:
