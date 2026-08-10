@@ -1,14 +1,17 @@
 server:
   servlet:
     session:
-      timeout: 10s
+      timeout: 10m
       cookie:
-        max-age: 10s
+        max-age: 10m
         name: session-test
 #    servlet:
 #    context-path: /security-session
-  port: 8080
+  port: 8087
 spring:
+  session:
+    redis:
+      namespace: mvc-sample:sessions
   data:
     redis:
       host: localhost
