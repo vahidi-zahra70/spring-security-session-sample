@@ -12,6 +12,7 @@ spring:
   session:
     redis:
       namespace: mvc-sample:sessions
+      repository-type: indexed
   data:
     redis:
       host: localhost

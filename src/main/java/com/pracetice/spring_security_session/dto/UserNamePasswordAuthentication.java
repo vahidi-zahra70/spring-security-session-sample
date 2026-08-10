@@ -18,8 +18,5 @@ public class UserNamePasswordAuthentication extends UsernamePasswordAuthenticati
         super(principal, credentials);
     }
 
-    public UserNamePasswordAuthentication(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
-        super(principal, credentials, authorities);
-    }
 }
 

@@ -2,6 +2,8 @@ package com.pracetice.spring_security_session.filter;
 
 import com.pracetice.spring_security_session.dto.OtpAuthentication;
 import com.pracetice.spring_security_session.dto.UserNamePasswordAuthentication;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,20 +11,22 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    public MyAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public MyAuthenticationFilter(AuthenticationManager authenticationManager,
+                                  SessionAuthenticationStrategy sessionAuthenticationStrategy) {
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/login");
 
-        setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
+        setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
 
         setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
@@ -31,7 +35,7 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
 
-                Cookie cookie = new Cookie("XSRF-TOKEN",  ((OtpAuthentication) authentication).getCsrfToken());
+                Cookie cookie = new Cookie("XSRF-TOKEN", ((OtpAuthentication) authentication).getCsrfToken());
                 cookie.setSecure(false);
                 cookie.setHttpOnly(false);
                 cookie.setPath("/");
@@ -69,4 +73,21 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
     }
 
 
+//    @Override
+//    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+//                                            FilterChain chain, Authentication authentication) throws IOException, ServletException {
+//
+//        if (!authentication.isAuthenticated()) {
+//            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+//            response.getWriter().write("OTP is sent!");
+//            return;
+//        }
+//
+//        super.successfulAuthentication(
+//                request,
+//                response,
+//                chain,
+//                authentication
+//        );
+//    }
 }
