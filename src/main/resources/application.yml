@@ -4,7 +4,7 @@ server:
       timeout: 10m
   #  servlet:
 #    context-path: /security-session
-  port: 8080
+  port: 8087
 logging:
   level:
     org:
