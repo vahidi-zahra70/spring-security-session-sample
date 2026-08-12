@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.session.ConcurrentSession
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
@@ -70,9 +71,15 @@ public class SecurityConfig {
                         .sessionRegistry(sessionRegistry))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/login", "/csrf").permitAll()
                         .anyRequest().authenticated())
 //                .csrf(AbstractHttpConfigurer::disable)
+
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(
+                                request -> "POST".equals(request.getMethod())
+                                        && "/login".equals(request.getServletPath()))
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
                                 .authenticationEntryPoint(authenticationEntryPoint)

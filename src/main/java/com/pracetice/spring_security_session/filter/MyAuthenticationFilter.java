@@ -2,9 +2,6 @@ package com.pracetice.spring_security_session.filter;
 
 import com.pracetice.spring_security_session.dto.OtpAuthentication;
 import com.pracetice.spring_security_session.dto.UserNamePasswordAuthentication;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,10 +11,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -34,14 +27,6 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
             if (authentication.isAuthenticated()) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
-
-                Cookie cookie = new Cookie("XSRF-TOKEN", ((OtpAuthentication) authentication).getCsrfToken());
-                cookie.setSecure(false);
-                cookie.setHttpOnly(false);
-                cookie.setPath("/");
-                cookie.setMaxAge((int) Duration.of(10, ChronoUnit.MINUTES).getSeconds());
-
-                response.addCookie(cookie);
             } else {
                 response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
                 response.getWriter().write("Otp is sent!");
