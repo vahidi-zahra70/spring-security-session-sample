@@ -21,12 +21,10 @@ public class UserController {
 
         //list all attributes
         session.getAttributeNames();
-        SecurityContext securityContext = session == null
-                ? null
-                : (SecurityContext) session.getAttribute(
-                HttpSessionSecurityContextRepository
-                        .SPRING_SECURITY_CONTEXT_KEY
-        );
+        SecurityContext securityContext = (SecurityContext) session.getAttribute(
+        HttpSessionSecurityContextRepository
+                .SPRING_SECURITY_CONTEXT_KEY
+);
 
         Authentication authentication = securityContext == null
                 ? null

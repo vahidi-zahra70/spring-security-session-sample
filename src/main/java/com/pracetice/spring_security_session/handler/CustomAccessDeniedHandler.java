@@ -26,7 +26,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws  IOException {
         ErrorDTO errorDTO = ErrorDTO.builder()
                 .status(HttpStatus.FORBIDDEN)
-                .message("SCOPE_IS_NOT_VALID")
+                .message(accessDeniedException.getMessage())
                 .localizedMessage("SCOPE_IS_NOT_VALID")
                 .timestamp(Instant.now())
                 .build();

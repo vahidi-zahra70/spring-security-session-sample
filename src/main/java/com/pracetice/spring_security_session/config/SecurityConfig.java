@@ -72,7 +72,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
-                .csrf(AbstractHttpConfigurer::disable)
+//                .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
                                 .authenticationEntryPoint(authenticationEntryPoint)
