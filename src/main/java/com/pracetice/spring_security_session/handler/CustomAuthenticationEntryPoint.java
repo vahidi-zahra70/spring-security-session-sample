@@ -29,7 +29,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                 .message(authException.getMessage())
                 .localizedMessage(authException.getMessage())
                 .timestamp(Instant.now()).build();
-//                .subErrors(authException instanceof BaamiamManagerAuthenticationException ? ((BaamiamManagerAuthenticationException) authException).getSubErrors() : new ArrayList<>()).build();
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

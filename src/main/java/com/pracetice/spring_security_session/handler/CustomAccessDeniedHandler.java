@@ -27,7 +27,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         ErrorDTO errorDTO = ErrorDTO.builder()
                 .status(HttpStatus.FORBIDDEN)
                 .message(accessDeniedException.getMessage())
-                .localizedMessage("SCOPE_IS_NOT_VALID")
+                .localizedMessage("ACCESS_IS_DENIED")
                 .timestamp(Instant.now())
                 .build();
 

@@ -65,7 +65,7 @@ public class SecurityConfig {
         AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider, otpAuthenticationProvider);
         return http
                 .requestCache((cache) -> cache
-                        .requestCache( new NullRequestCache())
+                        .requestCache(new NullRequestCache())
                 )
                 .sessionManagement(session -> session
                         .maximumSessions(1)
@@ -89,7 +89,7 @@ public class SecurityConfig {
                         new MyAuthenticationFilter(
                                 authManager,
                                 sessionAuthenticationStrategy,
-                                csrfTokenRepository),
+                                csrfTokenRepository,authenticationEntryPoint),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
 
@@ -116,19 +116,36 @@ public class SecurityConfig {
         concurrentSessionStrategy.setMaximumSessions(1);
         concurrentSessionStrategy.setExceptionIfMaximumExceeded(false);
 
-        CompositeSessionAuthenticationStrategy delegate =
-                new CompositeSessionAuthenticationStrategy(List.of(
+        return                new CompositeSessionAuthenticationStrategy(List.of(
                         concurrentSessionStrategy,
                         new ChangeSessionIdAuthenticationStrategy(),
                         new RegisterSessionAuthenticationStrategy(sessionRegistry)
                 ));
 
-        // The username/password step only requests an OTP. Register a session
-        // after the OTP provider returns a fully authenticated token.
-        return (authentication, request, response) -> {
-            if (authentication.isAuthenticated()) {
-                delegate.onAuthentication(authentication, request, response);
-            }
-        };
+
     }
+
+//    @Bean
+//    public SessionAuthenticationStrategy sessionAuthenticationStrategy(SessionRegistry sessionRegistry) {
+//        ConcurrentSessionControlAuthenticationStrategy concurrentSessionStrategy =
+//                new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
+//        concurrentSessionStrategy.setMaximumSessions(1);
+//        concurrentSessionStrategy.setExceptionIfMaximumExceeded(false);
+//
+//        CompositeSessionAuthenticationStrategy delegate =
+//                new CompositeSessionAuthenticationStrategy(List.of(
+//                        concurrentSessionStrategy,
+//                        new ChangeSessionIdAuthenticationStrategy(),
+//                        new RegisterSessionAuthenticationStrategy(sessionRegistry)
+//                ));
+//
+//        // The username/password step only requests an OTP. Register a session
+//        // after the OTP provider returns a fully authenticated token.
+//
+//        return (authentication, request, response) -> {
+//            if (authentication.isAuthenticated()) {
+//                delegate.onAuthentication(authentication, request, response);
+//            }
+//        };
+//    }
 }
