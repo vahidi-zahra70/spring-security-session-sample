@@ -3,7 +3,7 @@ server:
     session:
       timeout: 10m
       cookie:
-        max-age: 10m
+        max-age: 20m
         name: session-test
 #    servlet:
 #    context-path: /security-session
@@ -22,5 +22,5 @@ logging:
   level:
     org:
       springframework:
-        security: debug
-        session: debug
+        security: trace
+        session: trace

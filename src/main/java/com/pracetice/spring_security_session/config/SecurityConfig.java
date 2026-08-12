@@ -23,11 +23,10 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
-import java.time.Duration;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -62,7 +61,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    SessionRegistry sessionRegistry,
                                                    SessionAuthenticationStrategy sessionAuthenticationStrategy,
-                                                   CookieCsrfTokenRepository csrfTokenRepository) throws Exception {
+                                                   HttpSessionCsrfTokenRepository csrfTokenRepository) throws Exception {
         AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider, otpAuthenticationProvider);
         return http
                 .requestCache((cache) -> cache
@@ -97,14 +96,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CookieCsrfTokenRepository csrfTokenRepository() {
-        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        repository.setCookieCustomizer(cookie -> cookie
-                .maxAge(Duration.ofMinutes(10))
-                .path("/")
-                .sameSite("Lax"));
+    public HttpSessionCsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
 
         return repository;
+
     }
 
     @Bean

@@ -2,6 +2,7 @@ package com.pracetice.spring_security_session.filter;
 
 import com.pracetice.spring_security_session.dto.OtpAuthentication;
 import com.pracetice.spring_security_session.dto.UserNamePasswordAuthentication;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,8 @@ import org.springframework.util.StringUtils;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
+    private static final int CSRF_COOKIE_MAX_AGE_SECONDS = 10 * 60;
+
     public MyAuthenticationFilter(AuthenticationManager authenticationManager,
                                   SessionAuthenticationStrategy sessionAuthenticationStrategy,
                                   CsrfTokenRepository csrfTokenRepository) {
@@ -28,8 +31,17 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
             if (authentication.isAuthenticated()) {
+                // Authoritative copy: stored as a Spring Session attribute in Redis.
                 CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
                 csrfTokenRepository.saveToken(csrfToken, request, response);
+
+                Cookie csrfCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
+                csrfCookie.setPath("/");
+                csrfCookie.setMaxAge(CSRF_COOKIE_MAX_AGE_SECONDS);
+                csrfCookie.setHttpOnly(false);
+                csrfCookie.setSecure(request.isSecure());
+                csrfCookie.setAttribute("SameSite", "Lax");
+                response.addCookie(csrfCookie);
 
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
@@ -48,7 +60,6 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        System.out.println(">>>>>>>>>>>>>>>>> in my filter");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         String securityAnswer = request.getParameter("security_answer");
