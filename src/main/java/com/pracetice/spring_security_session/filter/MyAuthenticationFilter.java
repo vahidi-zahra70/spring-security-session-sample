@@ -10,12 +10,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.util.StringUtils;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     public MyAuthenticationFilter(AuthenticationManager authenticationManager,
-                                  SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+                                  SessionAuthenticationStrategy sessionAuthenticationStrategy,
+                                  CsrfTokenRepository csrfTokenRepository) {
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/login");
 
@@ -25,6 +28,9 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
             if (authentication.isAuthenticated()) {
+                CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
+                csrfTokenRepository.saveToken(csrfToken, request, response);
+
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write("Login successful!");
             } else {

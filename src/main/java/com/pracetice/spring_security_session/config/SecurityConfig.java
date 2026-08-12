@@ -22,10 +22,12 @@ import org.springframework.security.web.authentication.session.ConcurrentSession
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 
+import java.time.Duration;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -59,7 +61,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    SessionRegistry sessionRegistry,
-                                                   SessionAuthenticationStrategy sessionAuthenticationStrategy) throws Exception {
+                                                   SessionAuthenticationStrategy sessionAuthenticationStrategy,
+                                                   CookieCsrfTokenRepository csrfTokenRepository) throws Exception {
         AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider, otpAuthenticationProvider);
         return http
                 .requestCache((cache) -> cache
@@ -71,24 +74,37 @@ public class SecurityConfig {
                         .sessionRegistry(sessionRegistry))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/csrf").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated())
-//                .csrf(AbstractHttpConfigurer::disable)
-
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers(
                                 request -> "POST".equals(request.getMethod())
                                         && "/login".equals(request.getServletPath()))
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                        .csrfTokenRepository(csrfTokenRepository)
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
                                 .authenticationEntryPoint(authenticationEntryPoint)
                                 .accessDeniedHandler(customAccessDeniedHandler))
                 .addFilterBefore(
-                        new MyAuthenticationFilter(authManager, sessionAuthenticationStrategy),
+                        new MyAuthenticationFilter(
+                                authManager,
+                                sessionAuthenticationStrategy,
+                                csrfTokenRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
 
+    }
+
+    @Bean
+    public CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookieCustomizer(cookie -> cookie
+                .maxAge(Duration.ofMinutes(10))
+                .path("/")
+                .sameSite("Lax"));
+
+        return repository;
     }
 
     @Bean
