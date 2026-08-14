@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -18,32 +19,17 @@ import org.springframework.util.StringUtils;
 
 public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private static final int CSRF_COOKIE_MAX_AGE_SECONDS = 10 * 60;
 
     public MyAuthenticationFilter(AuthenticationManager authenticationManager,
-                                  SessionAuthenticationStrategy sessionAuthenticationStrategy,
-                                  CsrfTokenRepository csrfTokenRepository, AuthenticationEntryPoint authenticationEntryPoint) {
+                                 AuthenticationEntryPoint authenticationEntryPoint) {
         setAuthenticationManager(authenticationManager);
         setFilterProcessesUrl("/login");
 
-        setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+        setSessionAuthenticationStrategy(new ChangeSessionIdAuthenticationStrategy());
 
         setSecurityContextRepository(new HttpSessionSecurityContextRepository());
 
         setAuthenticationSuccessHandler((request, response, authentication) -> {
-            // This handler is reached only for the fully authenticated OTP step.
-            // Authoritative copy: stored as a Spring Session attribute in Redis.
-            CsrfToken csrfToken = csrfTokenRepository.generateToken(request);
-            csrfTokenRepository.saveToken(csrfToken, request, response);
-
-            Cookie csrfCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
-            csrfCookie.setPath("/");
-            csrfCookie.setMaxAge(CSRF_COOKIE_MAX_AGE_SECONDS);
-            csrfCookie.setHttpOnly(false);
-            csrfCookie.setSecure(request.isSecure());
-            csrfCookie.setAttribute("SameSite", "Lax");
-            response.addCookie(csrfCookie);
-
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write("Login successful!");
         });
@@ -88,22 +74,4 @@ public class MyAuthenticationFilter extends UsernamePasswordAuthenticationFilter
         return null;
     }
 
-//    @Override
-//    protected void successfulAuthentication(HttpServletRequest request,
-//                                            HttpServletResponse response,
-//                                            FilterChain chain,
-//                                            Authentication authentication)
-//            throws IOException, ServletException {
-//
-//        if (!authentication.isAuthenticated()) {
-//            // The username/password step only starts the OTP challenge. Do not
-//            // call super, because it would save this incomplete Authentication
-//            // in SPRING_SECURITY_CONTEXT and make it look non-anonymous later.
-//            response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
-//            response.getWriter().write("Otp is sent!");
-//            return;
-//        }
-//
-//        super.successfulAuthentication(request, response, chain, authentication);
-//    }
 }

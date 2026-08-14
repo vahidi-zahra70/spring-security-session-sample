@@ -39,92 +39,76 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider,otpAuthenticationProvider);
-//        return http
-//                .formLogin(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/login").permitAll()
-//                        .anyRequest().authenticated())
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .addFilterBefore(new MyAuthenticationFilter(authManager), UsernamePasswordAuthenticationFilter.class)
-//                .build();
-//
-//    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider,otpAuthenticationProvider);
+        return http
+                .formLogin(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login").permitAll()
+                        .anyRequest().authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new MyAuthenticationFilter(authManager,authenticationEntryPoint), UsernamePasswordAuthenticationFilter.class)
+                .build();
+
+    }
 
     /**
      * NullRequestCache This prevents anonymous 401 requests from creating unnecessary sessions and Redis keys.
      * ChangeSessionIdAuthenticationStrategy is responsible to change the sessionId after each successful login
      */
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   SessionRegistry sessionRegistry,
-                                                   SessionAuthenticationStrategy sessionAuthenticationStrategy,
-                                                   HttpSessionCsrfTokenRepository csrfTokenRepository) throws Exception {
-        AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider, otpAuthenticationProvider);
-        return http
-                .requestCache((cache) -> cache
-                        .requestCache(new NullRequestCache())
-                )
-                .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                        .sessionRegistry(sessionRegistry))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated())
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(
-                                request -> "POST".equals(request.getMethod())
-                                        && "/login".equals(request.getServletPath()))
-                        .csrfTokenRepository(csrfTokenRepository)
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-                .exceptionHandling(exceptionHandlingConfigurer ->
-                        exceptionHandlingConfigurer
-                                .authenticationEntryPoint(authenticationEntryPoint)
-                                .accessDeniedHandler(customAccessDeniedHandler))
-                .addFilterBefore(
-                        new MyAuthenticationFilter(
-                                authManager,
-                                sessionAuthenticationStrategy,
-                                csrfTokenRepository, authenticationEntryPoint),
-                        UsernamePasswordAuthenticationFilter.class)
-                .build();
-
-    }
-
-    @Bean
-    public HttpSessionCsrfTokenRepository csrfTokenRepository() {
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-        repository.setHeaderName("X-XSRF-TOKEN");
-
-        return repository;
-
-    }
-
-    @Bean
-    public SessionRegistry sessionRegistry(RedisIndexedSessionRepository sessionRepository) {
-        return new SpringSessionBackedSessionRegistry<>(sessionRepository);
-    }
-
-    @Bean
-    public SessionAuthenticationStrategy sessionAuthenticationStrategy(SessionRegistry sessionRegistry) {
-        ConcurrentSessionControlAuthenticationStrategy concurrentSessionStrategy =
-                new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry);
-        concurrentSessionStrategy.setMaximumSessions(1);
-        concurrentSessionStrategy.setExceptionIfMaximumExceeded(false);
-
-        return new CompositeSessionAuthenticationStrategy(List.of(
-                concurrentSessionStrategy,
-                new ChangeSessionIdAuthenticationStrategy(),
-                new RegisterSessionAuthenticationStrategy(sessionRegistry)
-        ));
-
-
-    }
-
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+//                                                   SessionRegistry sessionRegistry,
+//                                                   SessionAuthenticationStrategy sessionAuthenticationStrategy,
+//                                                   HttpSessionCsrfTokenRepository csrfTokenRepository) throws Exception {
+//        AuthenticationManager authManager = new ProviderManager(usernamePasswordAuthenticationProvider, otpAuthenticationProvider);
+//        return http
+//                .requestCache((cache) -> cache
+//                        .requestCache(new NullRequestCache())
+//                )
+//                .sessionManagement(session -> session
+//                        .maximumSessions(1)
+//                        .maxSessionsPreventsLogin(false)
+//                        .sessionRegistry(sessionRegistry))
+//                .formLogin(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/login").permitAll()
+//                        .anyRequest().authenticated())
+//                .csrf(csrf -> csrf
+//                        .ignoringRequestMatchers(
+//                                request -> "POST".equals(request.getMethod())
+//                                        && "/login".equals(request.getServletPath()))
+//                        .csrfTokenRepository(csrfTokenRepository)
+//                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+//                .exceptionHandling(exceptionHandlingConfigurer ->
+//                        exceptionHandlingConfigurer
+//                                .authenticationEntryPoint(authenticationEntryPoint)
+//                                .accessDeniedHandler(customAccessDeniedHandler))
+//                .addFilterBefore(
+//                        new MyAuthenticationFilter(
+//                                authManager,
+//                                sessionAuthenticationStrategy,
+//                                csrfTokenRepository, authenticationEntryPoint),
+//                        UsernamePasswordAuthenticationFilter.class)
+//                .build();
+//
+//    }
+//
+//    @Bean
+//    public HttpSessionCsrfTokenRepository csrfTokenRepository() {
+//        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+//        repository.setHeaderName("X-XSRF-TOKEN");
+//
+//        return repository;
+//
+//    }
+//
+//    @Bean
+//    public SessionRegistry sessionRegistry(RedisIndexedSessionRepository sessionRepository) {
+//        return new SpringSessionBackedSessionRegistry<>(sessionRepository);
+//    }
+//
 //    @Bean
 //    public SessionAuthenticationStrategy sessionAuthenticationStrategy(SessionRegistry sessionRegistry) {
 //        ConcurrentSessionControlAuthenticationStrategy concurrentSessionStrategy =
@@ -132,20 +116,13 @@ public class SecurityConfig {
 //        concurrentSessionStrategy.setMaximumSessions(1);
 //        concurrentSessionStrategy.setExceptionIfMaximumExceeded(false);
 //
-//        CompositeSessionAuthenticationStrategy delegate =
-//                new CompositeSessionAuthenticationStrategy(List.of(
-//                        concurrentSessionStrategy,
-//                        new ChangeSessionIdAuthenticationStrategy(),
-//                        new RegisterSessionAuthenticationStrategy(sessionRegistry)
-//                ));
+//        return new CompositeSessionAuthenticationStrategy(List.of(
+//                concurrentSessionStrategy,
+//                new ChangeSessionIdAuthenticationStrategy(),
+//                new RegisterSessionAuthenticationStrategy(sessionRegistry)
+//        ));
 //
-//        // The username/password step only requests an OTP. Register a session
-//        // after the OTP provider returns a fully authenticated token.
 //
-//        return (authentication, request, response) -> {
-//            if (authentication.isAuthenticated()) {
-//                delegate.onAuthentication(authentication, request, response);
-//            }
-//        };
 //    }
+
 }
