@@ -89,7 +89,7 @@ public class SecurityConfig {
                         new MyAuthenticationFilter(
                                 authManager,
                                 sessionAuthenticationStrategy,
-                                csrfTokenRepository,authenticationEntryPoint),
+                                csrfTokenRepository, authenticationEntryPoint),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
 
@@ -116,11 +116,11 @@ public class SecurityConfig {
         concurrentSessionStrategy.setMaximumSessions(1);
         concurrentSessionStrategy.setExceptionIfMaximumExceeded(false);
 
-        return                new CompositeSessionAuthenticationStrategy(List.of(
-                        concurrentSessionStrategy,
-                        new ChangeSessionIdAuthenticationStrategy(),
-                        new RegisterSessionAuthenticationStrategy(sessionRegistry)
-                ));
+        return new CompositeSessionAuthenticationStrategy(List.of(
+                concurrentSessionStrategy,
+                new ChangeSessionIdAuthenticationStrategy(),
+                new RegisterSessionAuthenticationStrategy(sessionRegistry)
+        ));
 
 
     }
